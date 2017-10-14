@@ -1,0 +1,3 @@
+05/10/2017 :
+ - Renommage de la clé "Film" du json en "Infos_commande"
+ - Fix sur la plage de détermination random de l'index à utiliser pour la méthode getMeal() de Database.php
