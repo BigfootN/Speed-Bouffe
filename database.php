@@ -15,7 +15,7 @@ final class Database {
 			}
 		}
 
-		public static Instance($servername, $user, $pwd, $dbname) {
+		public static function Instance($servername, $user, $pwd, $dbname) {
 			if ($instance === null)
 				$instance = new Database($servername, $user, $pwd, $dbname);
 		}
