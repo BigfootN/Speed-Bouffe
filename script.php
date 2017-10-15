@@ -1,7 +1,8 @@
 <?php
 
-set_time_limit(0);
+include 'database.php';
 
+set_time_limit(0);
 const SOCKET_ADDRESS = '127.0.0.1';
 const SOCKET_PORT = 10293;
 
@@ -26,11 +27,15 @@ while (true) {
 		exit(0);
 	}
 
-	$json = json_decode($buf);
+	$json = json_decode($buf, true);
 	var_dump($json);
 	echo '\n';
+
+	$client = $json["Acheteur"];
+	echo $client["Civilite"];
+	var_dump($client);
+
+	add_client($client);
 }
-
-
 
 ?>

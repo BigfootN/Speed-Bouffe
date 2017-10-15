@@ -1,6 +1,6 @@
 -- create database
-CREATE DATABASE IF NOT EXISTS pictlonis_db;
-USE pictlonis_db;
+CREATE DATABASE IF NOT EXISTS pictlonis;
+USE pictlonis;
 
 -------------------
 -- CREATE TABLES --
@@ -8,7 +8,7 @@ USE pictlonis_db;
 
 -- client table --
 CREATE TABLE IF NOT EXISTS client (
-	client_id INT NOT NULL,
+	client_id INT NOT NULL AUTO_INCREMENT,
 	gender BOOLEAN,
 	name CHAR(50),
 	first_name CHAR(50),
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS client (
 
 -- buyer table --
 CREATE TABLE IF NOT EXISTS buyer (
-	buyer_id INT NOT NULL,
+	buyer_id INT NOT NULL AUTO_INCREMENT,
 	client_id_fk INT NOT NULL,
 	PRIMARY KEY (buyer_id),
 	FOREIGN KEY (buyer_id) REFERENCES client(client_id)
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS buyer (
 
 -- info_order table --
 CREATE TABLE IF NOT EXISTS info_order (
-	info_order_id INT NOT NULL,
+	info_order_id INT NOT NULL AUTO_INCREMENT,
 	order_day DATE,
 	delivery_time TIME,
 	cash BIT,
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS info_order (
 
 -- order table --
 CREATE TABLE IF NOT EXISTS `order` (
-	order_id INT NOT NULL,
+	order_id INT NOT NULL AUTO_INCREMENT,
 	meal CHAR(60),
 	rate TINYINT(3),
 	info_order_id_fk INT NOT NULL,
