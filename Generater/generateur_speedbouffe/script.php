@@ -1,21 +1,11 @@
 <?php
 
 use SpeedBouffe\Database;
-require_once 'lib/autoload.php';
 
-const SOCKET_ADDRESS = '127.0.0.1';
-const SOCKET_PORT = 10293;
+require_once 'lib/autoload.php';
 
 $faker = Faker\Factory::create();
 $db = new Database();
-
-$sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-if ($sock === false)
-	exit(0);
-
-$sock_conn = socket_connect($sock, SOCKET_ADDRESS, SOCKET_PORT);
-if ($sock_conn === false)
-	exit(0);
 
 if (empty($argv[1]) == true) {
     $timer = 1000000;
@@ -74,9 +64,34 @@ while (true) {
         }
     }
 
-	$msg = json_encode($result) . PHP_EOL;
-
-	socket_write($sock, $msg, strlen($msg));
     //echo(json_encode($result));
-    //echo PHP_EOL;
+
+    $url = "127.0.0.1/speedbouf/";
+
+
+
+    $content = json_encode($result);
+
+    $curl = curl_init($url);
+    curl_setopt($curl, CURLOPT_HEADER, false);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_HTTPHEADER,
+        array("Content-type: application/json"));
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
+
+    $json_response = curl_exec($curl);
+
+    $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+    if ( $status != 201 ) {
+        //die("Error: call to URL $url failed with status $status, response $json_response, curl_error " . curl_error($curl) . ", curl_errno " . curl_errno($curl));
+    }
+
+
+    curl_close($curl);
+
+    $response = json_decode($json_response, true);
+    echo $json_response;
+    echo PHP_EOL;
 }
