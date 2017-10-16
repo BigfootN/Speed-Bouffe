@@ -6,9 +6,7 @@
  * Time: 19:15
  */
 
-if(isset($HTTP_RAW_POST_DATA)){
-    echo 'OK';
-    $data = json_decode($HTTP_RAW_POST_DATA);
-    print_r($data);
-}
+echo 'OK';
+$data = file_get_contents("php://input");
+print_r($data);
 
