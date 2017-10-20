@@ -15,22 +15,43 @@ class DbSpeedBouffe extends DatabaseN
 
 
     /**
+     * @param  integer $client_id
+     * @return void
+     */
+    private function updateEmailClient($email, $client_id)
+    {
+        $sql = "UPDATE client SET email = ? WHERE client_id = ? AND email <> '' ";
+
+        $attributes = [];
+        array_push($attributes, $email);
+        array_push($attributes, $client_id);
+
+        parent::prepare($sql, $attributes, '');
+
+    }//end updateEmailClient()
+
+
+    /**
      * @param Client $client
      * @return integer
      */
     private function clientId($client)
     {
         $ret = -1;
-        $sql = 'SELECT client_id FROM client WHERE name = ? AND first_name = ? AND age = ?';
+        $sql = 'SELECT client_id FROM client WHERE name = ? AND first_name = ? AND age = ? AND gender = ?';
 
         $attributes = [];
         array_push($attributes, $client->getName());
         array_push($attributes, $client->getFirstName());
         array_push($attributes, $client->getAge());
+        array_push($attributes, $client->getGender());
 
         $id = parent::prepare($sql, $attributes, '', true);
         if ($id !== false) {
             $ret = $id[0];
+            if ($client->getEmail() !== '' && $client->getEmail() !== null) {
+                $this->updateEmailClient($client->getEmail(), $ret);
+            }
         }
 
         return $ret;
@@ -49,7 +70,8 @@ class DbSpeedBouffe extends DatabaseN
         $age        = $order->getAge();
 
         $client = new Client($name, 0, $first_name, $age, '');
-        return $this->clientId($client);
+
+        return $this->insertClient($client);
 
     }//end clientIdOrder()
 
@@ -64,7 +86,6 @@ class DbSpeedBouffe extends DatabaseN
         $sql = 'SELECT buyer_id FROM buyer WHERE client_id_fk = ?';
 
         $attributes = [];
-        echo PHP_EOL;
         array_push($attributes, $buyer->getClientId());
 
         $id = parent::prepare($sql, $attributes, '', true);
