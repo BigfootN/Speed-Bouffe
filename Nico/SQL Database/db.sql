@@ -1,6 +1,6 @@
 -- create database
-CREATE DATABASE IF NOT EXISTS pictlonis;
-USE pictlonis;
+CREATE DATABASE IF NOT EXISTS speedbouffe;
+USE speedbouffe;
 
 -------------------
 -- CREATE TABLES --
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS buyer (
 	buyer_id INT NOT NULL AUTO_INCREMENT,
 	client_id_fk INT NOT NULL,
 	PRIMARY KEY (buyer_id),
-	FOREIGN KEY (buyer_id) REFERENCES client(client_id)
+	FOREIGN KEY (client_id_fk) REFERENCES client(client_id)
 );
 
 -- info_order table --
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS info_order (
 CREATE TABLE IF NOT EXISTS `order` (
 	order_id INT NOT NULL AUTO_INCREMENT,
 	meal CHAR(60),
-	rate TINYINT(3),
+	rate CHAR(60),
 	info_order_id_fk INT NOT NULL,
 	client_id_fk INT NOT NULL,
 	PRIMARY KEY(order_id),

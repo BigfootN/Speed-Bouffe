@@ -1,0 +1,4 @@
+User=bigfoot
+Password=sql_pass
+Database=speedbouffe
+Host=localhost
