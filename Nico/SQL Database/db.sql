@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS info_order (
 -- order table --
 CREATE TABLE IF NOT EXISTS `order` (
 	order_id INT NOT NULL AUTO_INCREMENT,
+	treated BOOLEAN,
 	meal CHAR(60),
 	rate CHAR(60),
 	info_order_id_fk INT NOT NULL,
