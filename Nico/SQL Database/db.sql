@@ -9,11 +9,11 @@ USE speedbouffe;
 -- client table --
 CREATE TABLE IF NOT EXISTS client (
 	client_id INT NOT NULL AUTO_INCREMENT,
+	buyer_id_fk INT,
 	gender BOOLEAN,
 	name CHAR(50),
 	first_name CHAR(50),
 	age TINYINT(2) UNSIGNED,
-	email CHAR(70),
 	PRIMARY KEY (client_id)
 );
 
@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS client (
 CREATE TABLE IF NOT EXISTS buyer (
 	buyer_id INT NOT NULL AUTO_INCREMENT,
 	client_id_fk INT NOT NULL,
+	email CHAR(70),
 	PRIMARY KEY (buyer_id),
 	FOREIGN KEY (client_id_fk) REFERENCES client(client_id)
 );
@@ -47,3 +48,7 @@ CREATE TABLE IF NOT EXISTS `order` (
 	FOREIGN KEY (info_order_id_fk) REFERENCES info_order(info_order_id),
 	FOREIGN KEY (client_id_fk) REFERENCES client(client_id)
 );
+
+-- foreign keys --
+ALTER TABLE `client`
+ADD FOREIGN KEY (buyer_id_fk) REFERENCES buyer(buyer_id)
