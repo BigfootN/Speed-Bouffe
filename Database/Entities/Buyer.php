@@ -19,22 +19,26 @@ class Buyer
     /**
      * @param  integer $client_id
      */
-    public function __construct($client_id = 0)
+    public function __construct($client_id=0)
     {
         $this->client_id = $client_id;
+
     }//end __construct()
 
 
     public function setProperties($attributes)
     {
         $this->email = $attributes['Email'];
-    }//end setClientId()
+
+    }//end setProperties()
 
 
     public function getClientId()
     {
         return $this->client_id;
+
     }//end getClientId()
+
 
     /**
      * @return string
@@ -42,5 +46,8 @@ class Buyer
     public function getEmail()
     {
         return $this->email;
-    }
+
+    }//end getEmail()
+
+
 }//end class

@@ -2,33 +2,30 @@
 
 
 namespace SpeedBouffe\Database;
-require_once 'DatabaseN.php';
 
 use SpeedBouffe\Database\DbSpeedBouffe;
-use SpeedBouffe\Entities\Order;
-use SpeedBouffe\Entities\Client;
-use SpeedBouffe\Entities\Buyer;
-use SpeedBouffe\Entities\InformationOrder;
+use SpeedBouffe\Database\Entities\Order;
+use SpeedBouffe\Database\Entities\Client;
+use SpeedBouffe\Database\Entities\Buyer;
+use SpeedBouffe\Database\Entities\InformationOrder;
+
+require_once __DIR__.'/../../../vendor/autoload.php';
 
 class DbSpeedBouffe extends DatabaseN
 {
 
 
-    /**
-     * @param  integer $client_id
-     * @return void
-     */
-    private function updateEmailClient($email, $client_id)
+    private function setBuyerId($client_id, $buyer_id)
     {
-        $sql = "UPDATE client SET email = ? WHERE client_id = ? AND email <> '' ";
+        $sql = 'UPDATE client SET buyer_id_fk = ? WHERE client_id = ?';
 
         $attributes = [];
-        array_push($attributes, $email);
+        array_push($attributes, $buyer_id);
         array_push($attributes, $client_id);
 
         parent::prepare($sql, $attributes, '');
 
-    }//end updateEmailClient()
+    }//end setBuyerId()
 
 
     /**
@@ -49,9 +46,6 @@ class DbSpeedBouffe extends DatabaseN
         $id = parent::prepare($sql, $attributes, '', true);
         if ($id !== false) {
             $ret = $id[0];
-            if ($client->getEmail() !== '' && $client->getEmail() !== null) {
-                $this->updateEmailClient($client->getEmail(), $ret);
-            }
         }
 
         return $ret;
@@ -68,8 +62,9 @@ class DbSpeedBouffe extends DatabaseN
         $name       = $order->getName();
         $first_name = $order->getFirstName();
         $age        = $order->getAge();
+        $gender     = $order->getGender();
 
-        $client = new Client($name, 0, $first_name, $age, '');
+        $client = new Client($name, $gender, $first_name, $age);
 
         return $this->insertClient($client);
 
@@ -83,9 +78,10 @@ class DbSpeedBouffe extends DatabaseN
     private function buyerId($buyer)
     {
         $ret = -1;
-        $sql = 'SELECT buyer_id FROM buyer WHERE client_id_fk = ?';
+        $sql = 'SELECT buyer_id FROM buyer WHERE email = ? AND client_id_fk = ?';
 
         $attributes = [];
+        array_push($attributes, $buyer->getEmail());
         array_push($attributes, $buyer->getClientId());
 
         $id = parent::prepare($sql, $attributes, '', true);
@@ -138,9 +134,10 @@ class DbSpeedBouffe extends DatabaseN
     {
         $client_id     = $this->clientIdOrder($order);
         $info_order_id = $this->infoOrderId($info_order);
-        $sql           = 'INSERT INTO `order`(meal, rate, info_order_id_fk, client_id_fk) VALUES (?, ?, ?, ?)';
+        $sql           = 'INSERT INTO `order`(treated, meal, rate, info_order_id_fk, client_id_fk) VALUES (?, ?, ?, ?, ?)';
 
         $attributes = [];
+        array_push($attributes, false);
         array_push($attributes, $order->getMeal());
         array_push($attributes, $order->getRate());
         array_push($attributes, $info_order_id);
@@ -164,14 +161,14 @@ class DbSpeedBouffe extends DatabaseN
             return $id;
         }
 
-        $sql = 'INSERT INTO client(gender, name, first_name, age, email) VALUES (?, ?, ?, ?, ?)';
+        $sql = 'INSERT INTO client(buyer_id_fk, gender, name, first_name, age) VALUES (?, ?, ?, ?, ?)';
 
         $attributes = [];
+        array_push($attributes, null);
         array_push($attributes, $client->getGender());
         array_push($attributes, $client->getName());
         array_push($attributes, $client->getFirstName());
         array_push($attributes, $client->getAge());
-        array_push($attributes, $client->getEmail());
 
         parent::prepare($sql, $attributes, '');
 
@@ -181,20 +178,23 @@ class DbSpeedBouffe extends DatabaseN
 
 
     /**
-     * @param Client $client
+     * @param Buyer   $buyer
+     * @param integer $client_id
      * @return integer
      */
-    public function insertBuyer($client)
+    public function insertBuyer($buyer)
     {
-        $client_id = $this->insertClient($client);
-        $sql       = 'INSERT INTO buyer(client_id_fk) VALUES (?)';
+        $sql = 'INSERT INTO buyer(client_id_fk, email) VALUES (?, ?)';
 
         $attributes = [];
-        array_push($attributes, $client_id);
+        array_push($attributes, $buyer->getClientId());
+        array_push($attributes, $buyer->getEmail());
 
         parent::prepare($sql, $attributes, '');
+        $buyer_id = parent::getLastId('buyer_id');
+        $this->setBuyerId($buyer->getClientId(), $buyer_id);
 
-        return parent::getLastId('buyer_id');
+        return $buyer_id;
 
     }//end insertBuyer()
 
@@ -225,6 +225,85 @@ class DbSpeedBouffe extends DatabaseN
         return parent::getLastId('info_order_id');
 
     }//end insertInformationOrder()
+
+
+    public function getNonTreatedOrders()
+    {
+        $sql = 'SELECT * FROM `order` WHERE treated = false';
+
+        return parent::prepare($sql, null, '');
+
+    }//end getNonTreatedOrders()
+
+
+    public function setOrderTreated($order_id)
+    {
+        $sql = 'UPDATE `order` SET treated = true WHERE order_id = ?';
+
+        $attributes = [];
+        array_push($attributes, $order_id);
+
+        parent::prepare($sql, $attributes, '');
+
+    }//end setOrderTreated()
+
+
+    public function getNbOrdersMalePerMeal()
+    {
+        $sql = 'SELECT meal, COUNT(meal) AS `Plats` FROM `order` INNER JOIN client ON client.client_id = `order`.client_id_fk WHERE client.gender = 0 GROUP BY meal';
+
+        return parent::prepare($sql, null, '');
+
+    }//end getNbOrdersMalePerMeal()
+
+
+    public function getNbOrdersFemalePerMeal()
+    {
+        $sql = 'SELECT meal, COUNT(meal) AS `Plats` FROM `order` INNER JOIN client ON client.client_id = `order`.client_id_fk WHERE client.gender <> 0 GROUP BY meal';
+
+        return parent::prepare($sql, null, '');
+
+    }//end getNbOrdersFemalePerMeal()
+
+
+    public function getNbOrdersPerMeal()
+    {
+        $sql = 'SELECT meal, COUNT(meal) AS `Plats` FROM `order` GROUP BY meal';
+
+        return parent::prepare($sql, null, '');
+
+    }//end getNbOrdersPerMeal()
+
+
+    public function getNbOrdersAgePerMeal($min, $max)
+    {
+        $sql = 'SELECT meal, COUNT(meal) AS `Plats` FROM `order` INNER JOIN client ON client.client_id = `order`.client_id_fk WHERE client.age >= ? AND client.age <= ? GROUP BY meal';
+
+        $attributes = [];
+        array_push($attributes, $min);
+        array_push($attributes, $max);
+
+        return parent::prepare($sql, $attributes, '');
+
+    }//end getNbOrdersAgePerMeal()
+
+
+    public function getNbMealPerDeliveryTime()
+    {
+        $sql = 'SELECT delivery_time, COUNT(meal) AS `Plats` FROM `order` INNER JOIN info_order ON info_order.info_order_id = `order`.info_order_id_fk GROUP BY delivery_time';
+
+        return parent::prepare($sql, null, '');
+
+    }//end getNbMealPerDeliveryTime()
+
+
+    public function getNbMealsPerBuyer()
+    {
+        $sql = 'SELECT DISTINCT meal, email, COUNT(meal) AS `Plats` FROM buyer INNER JOIN info_order ON buyer.buyer_id = info_order.buyer_id_fk INNER JOIN `order` ON info_order.info_order_id = order.info_order_id_fk GROUP BY email, meal';
+
+        return parent::prepare($sql, null, '');
+
+    }//end getNbMealsPerBuyer()
 
 
 }//end class

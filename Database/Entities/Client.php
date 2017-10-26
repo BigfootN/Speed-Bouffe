@@ -35,27 +35,33 @@ class Client
     {
         switch ($gender) {
             case 'Monsieur':
-                $gender = 0;
-                break;
+                $this->gender = 0;
+            break;
 
             case 'Madame':
-                $gender = 1;
-                break;
+                $this->gender = 1;
+            break;
 
             case 'Mademoiselle':
-                $gender = 2;
-                break;
+                $this->gender = 2;
+            break;
         }
+
     }//end setGender()
 
 
-    public function __construct($name = '', $gender = 0, $first_name = '', $age = 0)
+    public function __construct($name='', $gender=0, $first_name='', $age=0)
     {
         $this->id         = 0;
         $this->name       = $name;
         $this->gender     = $gender;
         $this->first_name = $first_name;
         $this->age        = $age;
+
+        if (is_string($gender) === true) {
+            $this->setGender($gender);
+        }
+
     }//end __construct()
 
 
@@ -68,6 +74,7 @@ class Client
         $this->first_name = $attributes['Prenom'];
         $this->age        = $attributes['Age'];
         $this->setGender($attributes['Civilite']);
+
     }//end setProperties()
 
 
@@ -77,6 +84,7 @@ class Client
     public function getId()
     {
         return $this->id;
+
     }//end getId()
 
 
@@ -86,6 +94,7 @@ class Client
     public function getName()
     {
         return $this->name;
+
     }//end getName()
 
 
@@ -95,6 +104,7 @@ class Client
     public function getFirstName()
     {
         return $this->first_name;
+
     }//end getFirstName()
 
 
@@ -104,6 +114,7 @@ class Client
     public function getAge()
     {
         return $this->age;
+
     }//end getAge()
 
 
@@ -113,5 +124,8 @@ class Client
     public function getGender()
     {
         return $this->gender;
+
     }//end getGender()
+
+
 }//end class

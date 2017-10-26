@@ -14,6 +14,7 @@ require_once __DIR__.'/../../../vendor/autoload.php';
 class DbSpeedBouffe extends DatabaseN
 {
 
+
     private function setBuyerId($client_id, $buyer_id)
     {
         $sql = 'UPDATE client SET buyer_id_fk = ? WHERE client_id = ?';
@@ -23,7 +24,9 @@ class DbSpeedBouffe extends DatabaseN
         array_push($attributes, $client_id);
 
         parent::prepare($sql, $attributes, '');
-    }
+
+    }//end setBuyerId()
+
 
     /**
      * @param Client $client
@@ -46,6 +49,7 @@ class DbSpeedBouffe extends DatabaseN
         }
 
         return $ret;
+
     }//end clientId()
 
 
@@ -58,10 +62,12 @@ class DbSpeedBouffe extends DatabaseN
         $name       = $order->getName();
         $first_name = $order->getFirstName();
         $age        = $order->getAge();
+        $gender     = $order->getGender();
 
-        $client = new Client($name, 0, $first_name, $age, '');
+        $client = new Client($name, $gender, $first_name, $age);
 
         return $this->insertClient($client);
+
     }//end clientIdOrder()
 
 
@@ -84,6 +90,7 @@ class DbSpeedBouffe extends DatabaseN
         }
 
         return $ret;
+
     }//end buyerId()
 
 
@@ -105,6 +112,7 @@ class DbSpeedBouffe extends DatabaseN
         }
 
         return $ret;
+
     }//end infoOrderId()
 
 
@@ -114,6 +122,7 @@ class DbSpeedBouffe extends DatabaseN
     public function __construct($login_file_path)
     {
         parent::__construct($login_file_path);
+
     }//end __construct()
 
 
@@ -137,6 +146,7 @@ class DbSpeedBouffe extends DatabaseN
         parent::prepare($sql, $attributes, '');
 
         return $this->getLastId('order_id');
+
     }//end insertOrder()
 
 
@@ -163,17 +173,18 @@ class DbSpeedBouffe extends DatabaseN
         parent::prepare($sql, $attributes, '');
 
         return parent::getLastId('client_id');
+
     }//end insertClient()
 
 
     /**
-     * @param Buyer $buyer
-     * @param int $client_id
+     * @param Buyer   $buyer
+     * @param integer $client_id
      * @return integer
      */
     public function insertBuyer($buyer)
     {
-        $sql       = 'INSERT INTO buyer(client_id_fk, email) VALUES (?, ?)';
+        $sql = 'INSERT INTO buyer(client_id_fk, email) VALUES (?, ?)';
 
         $attributes = [];
         array_push($attributes, $buyer->getClientId());
@@ -184,6 +195,7 @@ class DbSpeedBouffe extends DatabaseN
         $this->setBuyerId($buyer->getClientId(), $buyer_id);
 
         return $buyer_id;
+
     }//end insertBuyer()
 
 
@@ -211,22 +223,87 @@ class DbSpeedBouffe extends DatabaseN
         parent::prepare($sql, $attributes, null, true);
 
         return parent::getLastId('info_order_id');
+
     }//end insertInformationOrder()
+
 
     public function getNonTreatedOrders()
     {
-        $sql = "SELECT * FROM `order` WHERE treated = false";
+        $sql = 'SELECT * FROM `order` WHERE treated = false';
 
         return parent::prepare($sql, null, '');
-    }
+
+    }//end getNonTreatedOrders()
+
 
     public function setOrderTreated($order_id)
     {
-        $sql = "UPDATE `order` SET treated = true WHERE order_id = ?";
+        $sql = 'UPDATE `order` SET treated = true WHERE order_id = ?';
 
         $attributes = [];
         array_push($attributes, $order_id);
 
         parent::prepare($sql, $attributes, '');
-    }
+
+    }//end setOrderTreated()
+
+
+    public function getNbOrdersMalePerMeal()
+    {
+        $sql = 'SELECT meal, COUNT(meal) AS `Plats` FROM `order` INNER JOIN client ON client.client_id = `order`.client_id_fk WHERE client.gender = 0 GROUP BY meal';
+
+        return parent::prepare($sql, null, '');
+
+    }//end getNbOrdersMalePerMeal()
+
+
+    public function getNbOrdersFemalePerMeal()
+    {
+        $sql = 'SELECT meal, COUNT(meal) AS `Plats` FROM `order` INNER JOIN client ON client.client_id = `order`.client_id_fk WHERE client.gender <> 0 GROUP BY meal';
+
+        return parent::prepare($sql, null, '');
+
+    }//end getNbOrdersFemalePerMeal()
+
+
+    public function getNbOrdersPerMeal()
+    {
+        $sql = 'SELECT meal, COUNT(meal) AS `Plats` FROM `order` GROUP BY meal';
+
+        return parent::prepare($sql, null, '');
+
+    }//end getNbOrdersPerMeal()
+
+
+    public function getNbOrdersAgePerMeal($min, $max)
+    {
+        $sql = 'SELECT meal, COUNT(meal) AS `Plats` FROM `order` INNER JOIN client ON client.client_id = `order`.client_id_fk WHERE client.age >= ? AND client.age <= ? GROUP BY meal';
+
+        $attributes = [];
+        array_push($attributes, $min);
+        array_push($attributes, $max);
+
+        return parent::prepare($sql, $attributes, '');
+
+    }//end getNbOrdersAgePerMeal()
+
+
+    public function getNbMealPerDeliveryTime()
+    {
+        $sql = 'SELECT delivery_time, COUNT(meal) AS `Plats` FROM `order` INNER JOIN info_order ON info_order.info_order_id = `order`.info_order_id_fk GROUP BY delivery_time';
+
+        return parent::prepare($sql, null, '');
+
+    }//end getNbMealPerDeliveryTime()
+
+
+    public function getNbMealsPerBuyer()
+    {
+        $sql = 'SELECT DISTINCT meal, email, COUNT(meal) AS `Plats` FROM buyer INNER JOIN info_order ON buyer.buyer_id = info_order.buyer_id_fk INNER JOIN `order` ON info_order.info_order_id = order.info_order_id_fk GROUP BY email, meal';
+
+        return parent::prepare($sql, null, '');
+
+    }//end getNbMealsPerBuyer()
+
+
 }//end class
