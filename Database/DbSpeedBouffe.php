@@ -212,4 +212,21 @@ class DbSpeedBouffe extends DatabaseN
 
         return parent::getLastId('info_order_id');
     }//end insertInformationOrder()
+
+    public function getNonTreatedOrders()
+    {
+        $sql = "SELECT * FROM `order` WHERE treated = false";
+
+        return parent::prepare($sql, null, '');
+    }
+
+    public function setOrderTreated($order_id)
+    {
+        $sql = "UPDATE `order` SET treated = true WHERE order_id = ?";
+
+        $attributes = [];
+        array_push($attributes, $order_id);
+
+        parent::prepare($sql, $attributes, '');
+    }
 }//end class
