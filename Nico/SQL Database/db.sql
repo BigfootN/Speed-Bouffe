@@ -64,7 +64,9 @@ CREATE TABLE IF NOT EXISTS `order` (
 ALTER TABLE `client`
 ADD FOREIGN KEY (buyer_id_fk) REFERENCES buyer(buyer_id);
 
+----------------
 -- add prices --
+----------------
 INSERT INTO price(rate, price) VALUES ('Plein', 12);
 INSERT INTO price(rate, price) VALUES ('Senior', 9);
 INSERT INTO price(rate, price) VALUES ('Ami', 10);

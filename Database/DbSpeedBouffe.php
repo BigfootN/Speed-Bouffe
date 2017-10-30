@@ -324,4 +324,17 @@ class DbSpeedBouffe extends DatabaseN
     }//end getNbMealsPerBuyer()
 
 
+    public function updatePrice($price_id, $price)
+    {
+        $sql = 'UPDATE price SET price = ? WHERE price_id = ?';
+
+        $attributes = [];
+        array_push($attributes, $price);
+        array_push($attributes, $price_id);
+
+        parent::prepare($sql, $attributes, '');
+
+    }//end updatePrice()
+
+
 }//end class
