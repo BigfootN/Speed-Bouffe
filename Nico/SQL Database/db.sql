@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS info_order (
 CREATE TABLE IF NOT EXISTS price (
 	price_id INT NOT NULL AUTO_INCREMENT,
 	rate CHAR(40),
+	price TINYINT(3),
 	PRIMARY KEY (price_id)
 );
 
@@ -61,4 +62,10 @@ CREATE TABLE IF NOT EXISTS `order` (
 
 -- foreign keys --
 ALTER TABLE `client`
-ADD FOREIGN KEY (buyer_id_fk) REFERENCES buyer(buyer_id)
+ADD FOREIGN KEY (buyer_id_fk) REFERENCES buyer(buyer_id);
+
+-- add prices --
+INSERT INTO price(rate, price) VALUES ('Plein', 12);
+INSERT INTO price(rate, price) VALUES ('Senior', 9);
+INSERT INTO price(rate, price) VALUES ('Ami', 10);
+INSERT INTO price(rate, price) VALUES ('Etudiant', 8);
