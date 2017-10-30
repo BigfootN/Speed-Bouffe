@@ -15,6 +15,24 @@ class DbSpeedBouffe extends DatabaseN
 {
 
 
+    private function getPriceId($rate)
+    {
+        $ret = -1;
+        $sql = 'SELECT FROM price WHERE rate = ?';
+
+        $attributes = [];
+        array_push($attributes, $rate);
+
+        $id = parent::prepare($sql, $attributes, '', true);
+        if ($id !== false) {
+            $ret = $id[0];
+        }
+
+        return $ret;
+
+    }//end getPriceId()
+
+
     private function setBuyerId($client_id, $buyer_id)
     {
         $sql = 'UPDATE client SET buyer_id_fk = ? WHERE client_id = ?';
@@ -134,14 +152,14 @@ class DbSpeedBouffe extends DatabaseN
     {
         $client_id     = $this->clientIdOrder($order);
         $info_order_id = $this->infoOrderId($info_order);
-        $sql           = 'INSERT INTO `order`(treated, meal, rate, info_order_id_fk, client_id_fk) VALUES (?, ?, ?, ?, ?)';
+        $sql           = 'INSERT INTO `order`(treated, meal, info_order_id_fk, client_id_fk, price_id_fk) VALUES (?, ?, ?, ?, ?)';
 
         $attributes = [];
         array_push($attributes, false);
         array_push($attributes, $order->getMeal());
-        array_push($attributes, $order->getRate());
         array_push($attributes, $info_order_id);
         array_push($attributes, $client_id);
+        array_push($attributes, getPriceId($order->getRate()));
 
         parent::prepare($sql, $attributes, '');
 

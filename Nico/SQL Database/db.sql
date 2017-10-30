@@ -37,18 +37,27 @@ CREATE TABLE IF NOT EXISTS info_order (
 	FOREIGN KEY (buyer_id_fk) REFERENCES buyer(buyer_id)
 );
 
+-- price table --
+CREATE TABLE IF NOT EXISTS price (
+	price_id INT NOT NULL AUTO_INCREMENT,
+	rate CHAR(40),
+	PRIMARY KEY (price_id)
+);
+
 -- order table --
 CREATE TABLE IF NOT EXISTS `order` (
 	order_id INT NOT NULL AUTO_INCREMENT,
 	treated BOOLEAN,
 	meal CHAR(60),
-	rate CHAR(60),
 	info_order_id_fk INT NOT NULL,
 	client_id_fk INT NOT NULL,
-	PRIMARY KEY(order_id),
+	price_id_fk INT NOT NULL,
+	PRIMARY KEY (order_id),
 	FOREIGN KEY (info_order_id_fk) REFERENCES info_order(info_order_id),
-	FOREIGN KEY (client_id_fk) REFERENCES client(client_id)
+	FOREIGN KEY (client_id_fk) REFERENCES client(client_id),
+	FOREIGN KEY (price_id_fk) REFERENCES price(price_id)
 );
+
 
 -- foreign keys --
 ALTER TABLE `client`
